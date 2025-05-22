@@ -1,33 +1,29 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="UTF-8">
-  <title>Live Leaderboard - Break Me If You Can</title>
+  <meta charset="UTF-8" />
+  <title>Leaderboard</title>
   <style>
     body {
       background-color: black;
       color: lime;
       font-family: monospace;
       text-align: center;
-      padding-top: 5%;
+      padding: 40px;
     }
     table {
-      margin: auto;
+      margin: 0 auto;
       border-collapse: collapse;
-      width: 60%;
+      width: 80%;
+      margin-top: 30px;
     }
     th, td {
       border: 1px solid lime;
-      padding: 10px;
-      font-size: 1.2em;
+      padding: 8px 15px;
     }
     th {
-      background-color: #111;
-    }
-    h1 {
-      font-size: 2em;
-      margin-bottom: 30px;
+      background-color: darkgreen;
+      color: white;
     }
   </style>
   <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -35,18 +31,17 @@
 </head>
 <body>
 
-<h1>🏁 Live Leaderboard – Break Me If You Can</h1>
-
+<h1>📊 Cyber Challenge Leaderboard</h1>
 <table>
   <thead>
     <tr>
       <th>Player</th>
-      <th>Progress</th>
+      <th>Status</th>
+      <th>Level</th>
+      <th>Time (s)</th>
     </tr>
   </thead>
-  <tbody id="leaderboard">
-    <tr><td colspan="2">Loading...</td></tr>
-  </tbody>
+  <tbody id="leaderboardBody"></tbody>
 </table>
 
 <script>
@@ -55,7 +50,7 @@
     authDomain: "break-me-if-you-can.firebaseapp.com",
     databaseURL: "https://break-me-if-you-can-default-rtdb.asia-southeast1.firebasedatabase.app",
     projectId: "break-me-if-you-can",
-    storageBucket: "break-me-if-you-can.firebasestorage.app",
+    storageBucket: "break-me-if-you-can.appspot.com",
     messagingSenderId: "801113986886",
     appId: "1:801113986886:web:da0604ab81c15507d23747",
     measurementId: "G-S10SSC53N0"
@@ -63,43 +58,23 @@
 
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
-  const table = document.getElementById("leaderboard");
 
-  const levelLabels = [
-    "Not Started",
-    "📩 Phishing Solved",
-    "🔐 Password Cracked",
-    "🖥 Terminal Escaped",
-    "🚀 Reboot Complete"
-  ];
+  const body = document.getElementById("leaderboardBody");
+  db.ref("players").on("value", snapshot => {
+    const data = snapshot.val();
+    const sorted = Object.entries(data || {}).sort(([, a], [, b]) => (a.timeTaken || 9999) - (b.timeTaken || 9999));
 
-  function renderLeaderboard(snapshot) {
-    const players = snapshot.val();
-    table.innerHTML = "";
-
-    if (!players) {
-      table.innerHTML = "<tr><td colspan='2'>No players yet.</td></tr>";
-      return;
-    }
-
-    const entries = Object.entries(players);
-    if (entries.length === 0) {
-      table.innerHTML = "<tr><td colspan='2'>No players yet.</td></tr>";
-      return;
-    }
-
-    entries.sort((a, b) => (b[1].level || 0) - (a[1].level || 0));
-    entries.forEach(([name, data]) => {
-      const level = data.level || 0;
-      const progress = levelLabels[level] || "❓ Unknown";
-      const row = `<tr><td>${name}</td><td>${progress}</td></tr>`;
-      table.innerHTML += row;
+    body.innerHTML = "";
+    sorted.forEach(([name, val]) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${name}</td>
+        <td>${val.status || "?"}</td>
+        <td>${val.level || "?"}</td>
+        <td>${val.timeTaken || "-"}</td>
+      `;
+      body.appendChild(row);
     });
-  }
-
-  db.ref("players").on("value", renderLeaderboard, (error) => {
-    table.innerHTML = "<tr><td colspan='2'>Error loading leaderboard</td></tr>";
-    console.error("Firebase read error:", error);
   });
 </script>
 
