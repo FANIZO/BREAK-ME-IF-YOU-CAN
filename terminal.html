@@ -1,9 +1,8 @@
-
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>Escape the Hacker - Level 3: Terminal</title>
+  <title>Terminal Escape</title>
   <style>
     body {
       background-color: black;
@@ -13,108 +12,92 @@
     }
     #terminal {
       background-color: #111;
+      padding: 20px;
       border: 1px solid lime;
-      padding: 10px;
-      min-height: 400px;
-      overflow-y: auto;
-      white-space: pre-wrap;
+      min-height: 300px;
+      margin-bottom: 20px;
     }
-    #input-container {
-      display: flex;
-    }
-    .prompt {
-      flex-shrink: 0;
-    }
-    #cmdInput {
-      background: transparent;
-      border: none;
+    input {
+      background-color: black;
       color: lime;
-      font-family: monospace;
+      border: none;
       font-size: 1em;
-      outline: none;
-      flex-grow: 1;
+      width: 90%;
+    }
+    #countdown {
+      position: fixed;
+      top: 10px;
+      right: 20px;
+      background: red;
+      color: white;
+      padding: 6px 12px;
+      font-size: 1em;
+      border-radius: 5px;
     }
   </style>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
 </head>
 <body>
 
-<h2>🖥 Escape the Hacker - Level 3: Terminal</h2>
-<p>Navigate the system and find the unlock code.</p>
-<div id="terminal"></div>
-<div id="input-container">
-  <span class="prompt" id="prompt">/home/user$&nbsp;</span>
-  <input type="text" id="cmdInput" autofocus autocomplete="off">
+<div id="countdown">⏱ Time Elapsed: <span id="timeElapsed">0</span>s</div>
+
+<h1>💻 Terminal Access</h1>
+<div id="terminal">
+  > Welcome hacker<br>
+  > Find the key to unlock the system.<br>
+  > Type <code>ls</code> to list folders.
 </div>
+<input id="cmd" autofocus onkeydown="handleCommand(event)" />
 
 <script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyB2GuAPJXgBHlE-11JpheX-KbH3593UR8A",
-    authDomain: "break-me-if-you-can.firebaseapp.com",
-    databaseURL: "https://break-me-if-you-can-default-rtdb.asia-southeast1.firebasedatabase.app",
-    projectId: "break-me-if-you-can",
-    storageBucket: "break-me-if-you-can.firebasestorage.app",
-    messagingSenderId: "801113986886",
-    appId: "1:801113986886:web:da0604ab81c15507d23747",
-    measurementId: "G-S10SSC53N0"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const db = firebase.database();
-  const name = localStorage.getItem("hackerName");
+  const hackerName = localStorage.getItem("hackerName");
+  let path = "/";
 
-  function updateProgress(level) {
-    if (name) db.ref("players/" + name).set({ level: level });
-  }
-
-  const fileSystem = {
-    "/home/user": ["documents", "key.txt", "secrets"],
-    "/home/user/documents": ["notes.doc"]
-  };
-  let currentPath = "/home/user";
-
-  const matchCommand = (cmd) => cmd.toLowerCase().replace("1", "l").trim();
-
-  function respondTo(command) {
-    switch (command) {
-      case "ls":
-        return fileSystem[currentPath]?.join(" ") || "No files here.";
-      case "cd documents":
-        currentPath = "/home/user/documents"; return "";
-      case "cd ..":
-        currentPath = "/home"; return "";
-      case "cat key.txt":
-        updateProgress(3);
-        setTimeout(() => {
-          terminal.innerHTML += "\n🔓 Code accepted. Escaping system...\n";
-          setTimeout(() => {
-            window.location.href = "reboot.html";
-          }, 3000);
-        }, 1000);
-        return "UNLOCK-CODE-0923";
-      case "help":
-        return "Available commands: ls, cd [dir], cat [file], clear, help";
-      case "clear":
-        terminal.innerHTML = ""; return "";
-      default:
-        return "Command not found. Type 'help' for available commands.";
-    }
-  }
-
-  const terminal = document.getElementById("terminal");
-  const cmdInput = document.getElementById("cmdInput");
-
-  cmdInput.addEventListener("keydown", function (e) {
+  function handleCommand(e) {
     if (e.key === "Enter") {
-      const raw = cmdInput.value.trim();
-      const cmd = matchCommand(raw);
-      terminal.innerHTML += "\n" + currentPath + "$ " + raw;
-      const output = respondTo(cmd);
-      if (output) terminal.innerHTML += "\n" + output;
-      cmdInput.value = "";
+      const input = document.getElementById("cmd");
+      const val = input.value.trim().toLowerCase();
+      const terminal = document.getElementById("terminal");
+
+      terminal.innerHTML += `<br>> ${val}`;
+
+      if (val === "ls") {
+        if (path === "/") {
+          terminal.innerHTML += "<br>hidden";
+        } else if (path === "/hidden") {
+          terminal.innerHTML += "<br>key.txt";
+        }
+      } else if (val === "cd hidden" && path === "/") {
+        path = "/hidden";
+        terminal.innerHTML += "<br>Entered folder: hidden";
+      } else if (val === "cat key.txt" && path === "/hidden") {
+        terminal.innerHTML += "<br>🔓 Code: DECRYPT-3021<br>> Code accepted. Proceeding...";
+        updateProgress(4, "Playing");
+        setTimeout(() => {
+          window.location.href = "cipher.html";
+        }, 2500);
+      } else {
+        terminal.innerHTML += "<br>Unknown command.";
+      }
+
+      input.value = "";
       terminal.scrollTop = terminal.scrollHeight;
     }
-  });
+  }
+
+  function updateProgress(level, status) {
+    fetch("https://break-me-if-you-can-default-rtdb.asia-southeast1.firebasedatabase.app/players/" + hackerName + ".json", {
+      method: "PATCH",
+      body: JSON.stringify({ level: level, status: status })
+    });
+  }
+
+  const startTime = parseInt(localStorage.getItem("gameStart"), 10);
+  function updateTimer() {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    document.getElementById("timeElapsed").textContent = elapsed;
+    setTimeout(updateTimer, 1000);
+  }
+  updateTimer();
 </script>
 
 </body>
