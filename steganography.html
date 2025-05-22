@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Steganography Challenge</title>
+  <style>
+    body {
+      background-color: black;
+      color: lime;
+      font-family: monospace;
+      text-align: center;
+      padding: 50px;
+    }
+    img {
+      margin-top: 20px;
+      border: 2px solid lime;
+      max-width: 100%;
+    }
+    input {
+      margin-top: 20px;
+      padding: 10px;
+      background-color: #111;
+      color: lime;
+      border: 1px solid lime;
+      font-size: 1em;
+      width: 300px;
+    }
+    button {
+      margin: 10px;
+      padding: 10px 20px;
+      background-color: lime;
+      color: black;
+      font-size: 1em;
+      border: none;
+      cursor: pointer;
+    }
+    #countdown {
+      position: fixed;
+      top: 10px;
+      right: 20px;
+      background: red;
+      color: white;
+      padding: 6px 12px;
+      font-size: 1em;
+      border-radius: 5px;
+    }
+    #hint {
+      font-style: italic;
+      margin-top: 10px;
+      color: orange;
+    }
+  </style>
+</head>
+<body>
+
+<div id="countdown">⏱ Time Elapsed: <span id="timeElapsed">0</span>s</div>
+
+<h1>🕵️‍♂️ Steganography Challenge</h1>
+<p>There's a hidden clue somewhere... maybe in what you downloaded?</p>
+
+<p id="hint">Hint: Sometimes the filename reveals more than the pixels.</p>
+
+<a href="hidden_message.png" download><button>Download Image</button></a>
+<br>
+<img src="hidden_message.png" alt="Maybe something is hidden...">
+
+<br><br>
+<input type="text" id="answer" placeholder="Enter the hidden word">
+<br>
+<button onclick="submitAnswer()">Submit</button>
+<p id="result"></p>
+
+<script>
+  const correctAnswer = "message";
+  const hackerName = localStorage.getItem("hackerName");
+
+  function submitAnswer() {
+    const input = document.getElementById("answer").value.trim().toLowerCase();
+    const result = document.getElementById("result");
+
+    if (input === correctAnswer) {
+      result.textContent = "✅ Correct! Moving to firewall challenge...";
+      updateProgress(6, "Playing");
+      setTimeout(() => {
+        window.location.href = "firewall.html";
+      }, 2000);
+    } else {
+      result.textContent = "❌ Incorrect. Try again.";
+    }
+  }
+
+  function updateProgress(level, status) {
+    fetch("https://break-me-if-you-can-default-rtdb.asia-southeast1.firebasedatabase.app/players/" + hackerName + ".json", {
+      method: "PATCH",
+      body: JSON.stringify({ level: level, status: status })
+    });
+  }
+
+  const startTime = parseInt(localStorage.getItem("gameStart"), 10);
+  function updateTimer() {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    document.getElementById("timeElapsed").textContent = elapsed;
+    setTimeout(updateTimer, 1000);
+  }
+  updateTimer();
+</script>
+
+</body>
+</html>
