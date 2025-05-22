@@ -58,20 +58,25 @@
 <script>
   const hackerName = localStorage.getItem("hackerName");
 
-  function checkAnswer(correct) {
-    const message = document.getElementById("message");
+ function checkAnswer(correct) {
+  const message = document.getElementById("message");
 
-    if (correct) {
-      message.textContent = "✅ Rule applied! Proceeding to reboot...";
-      updateProgress(6, "Won");
+  if (correct) {
+    message.textContent = "✅ Rule applied! Proceeding to reboot...";
+    updateProgress(6, "Won");
 
-      setTimeout(() => {
-        window.location.href = "reboot.html";
-      }, 2000);
-    } else {
-      message.textContent = "❌ That rule blocks the system. Try again.";
-    }
+    setTimeout(() => {
+      window.location.href = "reboot.html";
+    }, 2000);
+  } else {
+    message.textContent = "❌ That rule blocks the system. You’ve been hacked.";
+    updateProgress(6, "Lost");
+
+    setTimeout(() => {
+      window.location.href = "ransom.html";
+    }, 2000);
   }
+}
 
   function updateProgress(level, status) {
     fetch("https://break-me-if-you-can-default-rtdb.asia-southeast1.firebasedatabase.app/players/" + hackerName + ".json", {
