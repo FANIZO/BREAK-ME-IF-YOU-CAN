@@ -38,6 +38,11 @@
       font-size: 1em;
       border-radius: 5px;
     }
+    #hint {
+      margin-top: 10px;
+      font-style: italic;
+      color: orange;
+    }
   </style>
 </head>
 <body>
@@ -46,9 +51,11 @@
 
 <h1>🧠 Cipher Puzzle</h1>
 <p>Decode the following Base64 string:</p>
-<p><strong>U2F2ZVRoZUN5YmVyV29ybGQ=</strong></p>
+<p><strong>VVZGc1lXMXVZVzFwYkdWc2IyTjFiSFI1SUZCeVpYTnZiV1Z1WkdGMFlTQnlaV1Fn</strong></p>
 
-<input type="text" id="cipherInput" placeholder="Enter decoded text">
+<p id="hint">Hint: Keep decoding… you're close!</p>
+
+<input type="text" id="cipherInput" placeholder="Enter decoded message">
 <br>
 <button onclick="checkAnswer()">Submit</button>
 
