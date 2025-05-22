@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Cipher Puzzle</title>
+  <style>
+    body {
+      background-color: black;
+      color: lime;
+      font-family: monospace;
+      text-align: center;
+      padding-top: 60px;
+    }
+    input {
+      padding: 10px;
+      font-size: 1em;
+      background-color: #111;
+      color: lime;
+      border: 1px solid lime;
+      margin: 10px;
+      width: 300px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: lime;
+      color: black;
+      border: none;
+      cursor: pointer;
+      font-weight: bold;
+    }
+    #countdown {
+      position: fixed;
+      top: 10px;
+      right: 20px;
+      background: red;
+      color: white;
+      padding: 6px 12px;
+      font-size: 1em;
+      border-radius: 5px;
+    }
+  </style>
+</head>
+<body>
+
+<div id="countdown">⏱ Time Elapsed: <span id="timeElapsed">0</span>s</div>
+
+<h1>🧠 Cipher Puzzle</h1>
+<p>Decode the following Base64 string:</p>
+<p><strong>U2F2ZVRoZUN5YmVyV29ybGQ=</strong></p>
+
+<input type="text" id="cipherInput" placeholder="Enter decoded text">
+<br>
+<button onclick="checkAnswer()">Submit</button>
+
+<p id="result"></p>
+
+<script>
+  const correctAnswer = "savethecyberworld";
+  const hackerName = localStorage.getItem("hackerName");
+
+  function checkAnswer() {
+    const input = document.getElementById("cipherInput").value.trim().toLowerCase();
+    const result = document.getElementById("result");
+
+    if (input === correctAnswer) {
+      result.textContent = "✅ Correct! Moving to the firewall level...";
+      updateProgress(5, "Playing");
+      setTimeout(() => {
+        window.location.href = "firewall.html";
+      }, 2000);
+    } else {
+      result.textContent = "❌ Incorrect. Try again.";
+    }
+  }
+
+  function updateProgress(level, status) {
+    fetch("https://break-me-if-you-can-default-rtdb.asia-southeast1.firebasedatabase.app/players/" + hackerName + ".json", {
+      method: "PATCH",
+      body: JSON.stringify({ level: level, status: status })
+    });
+  }
+
+  const startTime = parseInt(localStorage.getItem("gameStart"), 10);
+  function updateTimer() {
+    const elapsed = Math.floor((Date.now() - startTime) / 1000);
+    document.getElementById("timeElapsed").textContent = elapsed;
+    setTimeout(updateTimer, 1000);
+  }
+  updateTimer();
+</script>
+
+</body>
+</html>
