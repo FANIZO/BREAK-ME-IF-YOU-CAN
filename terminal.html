@@ -16,6 +16,8 @@
       border: 1px solid lime;
       min-height: 300px;
       margin-bottom: 20px;
+      overflow-y: auto;
+      max-height: 400px;
     }
     input {
       background-color: black;
@@ -75,6 +77,8 @@
         setTimeout(() => {
           window.location.href = "cipher.html";
         }, 2500);
+      } else if (val === "help") {
+        terminal.innerHTML += "<br>Hint: Type <code>ls</code> to find hidden folder. Then <code>cd hidden</code> and look for the key.";
       } else {
         terminal.innerHTML += "<br>Unknown command.";
       }
