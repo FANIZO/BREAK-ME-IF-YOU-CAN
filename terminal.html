@@ -75,10 +75,11 @@
         setTimeout(() => {
           window.location.href = "cipher.html";
         }, 2500);
-      } else {
-        terminal.innerHTML += "<br>Unknown command.";
-      }
-
+      } } else if (val === "help") {
+  terminal.innerHTML += "<br>💡 Hint: Use <code>ls</code> to explore. Sometimes hidden folders hide what you need.";
+} else {
+  terminal.innerHTML += "<br>Unknown command.";
+}
       input.value = "";
       terminal.scrollTop = terminal.scrollHeight;
     }
